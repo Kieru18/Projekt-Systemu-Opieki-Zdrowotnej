@@ -12,7 +12,7 @@
 | **Lekarz** | Użytkownik systemu zajmujący się leczeniem pacjentów | Brak dostępu do historii leczenia pacjenta z innych placówek; konieczność ręcznego prowadzenia dokumentacji medycznej; brak bezpośredniego dostępu do wyników badań pacjentów, w tym badań obrazowych; brak możliwości udzielania teleporad |
 | **Laboratorium** | Dostarczyciel wyników badań | Brak zautomatyzowanego przekazywania wyników badań (papierowe lub mailowe); brak integracji z EDM pacjenta; brak możliwości przeglądania statystyk dotyczących wykonanych badań |
 | **Administrator przychodni** | Użytkownik systemu posiadający wgląd operacyjny w funkcjonowanie placówki (wizyty, pacjenci, harmonogram) | Brak centralnego wglądu w harmonogram wizyt; trudności w zarządzaniu rejestracją pacjentów; brak możliwości generowania raportów dotyczących funkcjonowania placówki |
-| **Administrator IT systemu** | Użytkownik odpowiedzialny za monitorowanie działania systemu w środowisku produkcyjnym oraz utrzymanie jego bezpieczeństwa | Brak możliwości monitorowania działania systemu w czasie rzeczywistym; brak narzędzi do szybkiego wykrywania i diagnozowania błędów; brak automatycznych powiadomień o awariach; brak mechanizmów wspierających zapewnienie ciągłości działania systemu |
+| **Administrator IT** | Użytkownik odpowiedzialny za monitorowanie działania systemu w środowisku produkcyjnym oraz utrzymanie jego bezpieczeństwa | Brak możliwości monitorowania działania systemu w czasie rzeczywistym; brak narzędzi do szybkiego wykrywania i diagnozowania błędów; brak automatycznych powiadomień o awariach |
 | **Specjalista ds. zgodności** | Osoba odpowiedzialna za nadzór nad zgodnością systemu z przepisami i politykami bezpieczeństwa | Brak możliwości weryfikacji zgodności działania systemu z obowiązującymi przepisami prawa; brak narzędzi do wykazania spełnienia wymogów regulacyjnych |
 
 ### 1.2 Zewnętrzne systemy publiczne
@@ -21,28 +21,37 @@
 |---|---|
 | **Centrum e-Zdrowia** | Obsługa e-recept oraz e-skierowań |
 | **eWUŚ** | Możliwość weryfikacji ubezpieczenia pacjenta |
+| **NFZ** | Rozliczanie świadczeń medycznych |
 
 ---
 
 ### 1.3 Wymagania funkcjonalne
 
+#### F0 – Sposób dostępu do systemu
+
+| ID | Wymaganie |
+|---|---|
+| F0.1 | System powinien umożliwiać pacjentowi korzystanie z funkcjonalności systemu za pośrednictwem portalu internetowego lub aplikacji mobilnej |
+| F0.2 | System powinien umożliwiać pozostałym użytkownikom korzystanie z systemu za pośrednictwem portalu internetowego |
+
 #### F1 – Zarządzanie wizytami
 
 | ID | Wymaganie |
 |---|---|
-| F1.1 | System powinien umożliwiać pacjentowi umawianie i odwoływanie wizyt przez portal internetowy lub aplikację mobilną |
+| F1.1 | System powinien umożliwiać pacjentowi umawianie i odwoływanie wizyt |
 | F1.2 | System powinien umożliwiać pacjentowi podgląd dostępnych terminów wizyt dla wybranych lekarzy i przychodni |
 | F1.3 | System powinien wysyłać pacjentowi automatyczne przypomnienia o nadchodzącej wizycie za pomocą wiadomości SMS |
 | F1.4 | System powinien umożliwiać użytkownikom posiadającym odpowiednie uprawnienia podgląd szczegółów wizyty (data, godzina, gabinet, dane pacjenta) |
 | F1.5 | System powinien umożliwiać lekarzowi podgląd dziennego harmonogramu wizyt |
 | F1.6 | System powinien umożliwiać lekarzowi zmianę statusu wizyty |
 | F1.7 | System powinien umożliwiać lekarzowi definiowanie dostępnych terminów wizyt |
+| F1.8 | System powinien umożliwiać pacjentowi dokonanie płatności za wizytę prywatną |
 
 #### F2 – Telemedycyna
 
 | ID | Wymaganie |
 |---|---|
-| F2.1 | System powinien umożliwiać pacjentowi kontakt z lekarzem poprzez czat tekstowy za pośrednictwem portalu internetowego lub aplikacji mobilnej |
+| F2.1 | System powinien umożliwiać pacjentowi kontakt z lekarzem poprzez czat tekstowy |
 | F2.2 | System powinien umożliwiać przesyłanie załączników w ramach komunikacji czatowej między pacjentem a lekarzem |
 | F2.3 | System powinien umożliwiać pacjentowi umawianie wizyt w formie teleporad |
 | F2.4 | System powinien umożliwiać lekarzowi dostęp do EDM pacjenta |
@@ -57,6 +66,7 @@
 | F3.3 | System powinien umożliwiać pacjentowi przeglądanie i pobieranie fragmentów EDM przypisanej do niego |
 | F3.4 | System powinien rejestrować historię zmian oraz dostępów do EDM, wraz z informacją o użytkowniku i czasie wykonania operacji oraz jej typie |
 | F3.5 | System powinien umożliwiać przechowywanie i przeglądanie załączników z wynikami badań w ramach EDM w formatach PDF oraz DICOM |
+| F3.6 | System powinien umożliwiać pacjentowi aktualizację jego danych osobowych |
 
 #### F4 – Integracja laboratoryjna
 
@@ -66,7 +76,7 @@
 | F4.2 | System powinien powiadamiać pacjenta o dostępności wyników badań za pomocą wiadomości SMS |
 | F4.3 | System powinien umożliwiać lekarzowi wystawianie zleceń badań laboratoryjnych dla pacjenta |
 | F4.4 | System powinien umożliwiać wyszukiwanie zleceń badań laboratoryjnych na podstawie ich identyfikatora |
-| F4.5 | System powinien umożliwiać pacjentowi podgląd i pobieranie wyników badań laboratoryjnych na podstawie numeru PESEL oraz identyfikatora badania |
+| F4.5 | System powinien umożliwiać pacjentowi podgląd i pobieranie wyników badań laboratoryjnych (format PDF, DICOM) na podstawie numeru PESEL oraz identyfikatora badania |
 
 #### F5 – Analityka i raportowanie
 
@@ -76,6 +86,7 @@
 | F5.2 | System powinien umożliwiać administratorowi przychodni generowanie statystyk dotyczących liczby wizyt |
 | F5.3 | System powinien umożliwiać administratorowi przychodni wizualizację zajętości gabinetów |
 | F5.4 | System powinien umożliwiać administratorowi przychodni podgląd zaplanowanych wizyt w konkretnych placówkach |
+| F5.5 | System powinien umożliwiać generowanie raportów świadczeń medycznych zgodnie ze standardami wymaganymi przez NFZ |
 
 #### F6 – Bezpieczeństwo
 
@@ -89,55 +100,55 @@
 
 ### 1.3 Wymagania niefunkcjonalne
 
-TODO: niefunkcjonalne poprawić
+#### NF1 - Zgodność i ochrona danych
 
-| F7.4 | Wszystkie operacje na danych wrażliwych są logowane do niemodyfikowalnego logu audytu |
+| ID | Wymaganie |
+|---|---|
+| NF1.1 | System powinien zapewniać dostęp do EDM pacjenta wyłącznie uprawnionym użytkownikom |
+| NF1.2 | System powinien zapewniać bezpieczeństwo danych poprzez szyfrowanie komunikacji oraz ochronę danych przechowywanych w bazie danych |
+| NF1.3 | System powinien przetwarzać wyłącznie dane pacjenta niezbędne do realizacji usług medycznych |
+| NF1.4 | System powinien zapewniać przetwarzanie danych medycznych wyłącznie w celach związanych z udzielaniem świadczeń zdrowotnych |
+| NF1.5 | System powinien umożliwiać przechowywanie EDM przez wymagany okres czasu |
+| NF1.6 | System powinien zapewniać przechowywanie EDM w sposób gwarantujący jej integralność, kompletność oraz możliwość odtworzenia |
 
-#### Dostępność i niezawodność
+#### NF2 – Monitorowanie systemu
+
+| ID | Wymaganie |
+|---|---|
+| NF2.1 | System powinien zapewniać możliwość monitorowania swojego działania w czasie rzeczywistym |
+| NF2.2 | System powinien umożliwiać monitorowanie obciążenia systemu |
+| NF2.3 | System powinien umożliwiać szybkie wykrywanie i diagnozowanie błędów |
+| NF2.4 | System powinien automatycznie powiadamiać administratora IT o awariach systemu |
+
+#### NF3 - Utrzymywalność
+
+| ID | Wymaganie |
+|---|---|
+| NF3.1 | System powinien umożliwiać wdrażanie aktualizacji wybranych komponentów bez przerywania działania systemu |
+| NF3.2 | System powinien być wdrażany i utrzymywany w odrębnych środowiskach: deweloperskim, preprodukcyjnym oraz produkcyjnym |
+
+#### NF4 - Dostępność i niezawodność
 
 | ID | Wymaganie | Wartość docelowa |
 |---|---|---|
-| NF1.1 | Dostępność systemu (SLA) | ≥ 99.9% (max ~8.7h przestoju/rok) |
-| NF1.2 | RTO (Recovery Time Objective) – czas odtworzenia po awarii | ≤ 4 godziny |
-| NF1.3 | RPO (Recovery Point Objective) – maksymalna utrata danych | ≤ 1 godzina |
-| NF1.4 | Awaria pojedynczej strefy/węzła nie powoduje niedostępności systemu | Brak SPOF (Single Point of Failure) |
+| NF4.1 | Dostępność systemu (SLA) | ≥ 99.5% (dopuszczalne są planowane przerwy techniczne w godzinach nocnych) |
+| NF4.2 | RTO (Recovery Time Objective) – czas odtworzenia po awarii | ≤ 4 godziny |
+| NF4.3 | RPO (Recovery Point Objective) – maksymalna utrata danych | ≤ 1 godzina |
 
-#### Wydajność i skalowalność
+#### NF5 – Wydajność i skalowalność
 
 | ID | Wymaganie | Wartość docelowa |
 |---|---|---|
-| NF2.1 | Czas odpowiedzi API (operacje odczytu) | ≤ 200 ms (p95) |
-| NF2.2 | Czas ładowania strony portalu pacjenta | ≤ 3 s (łącze 10 Mbps) |
-| NF2.3 | Przepustowość systemu w godzinach szczytu | ≥ 2 000 req/s |
-| NF2.4 | Czas przesyłu badania obrazowego (DICOM ~100 MB) | ≤ 30 s |
-| NF2.5 | System skaluje się horyzontalnie bez przestoju | Auto-skalowanie w chmurze |
+| NF5.1 | System powinien zapewniać krótki czas odpowiedzi dla podstawowych operacji | ≤ 1 s |
+| NF5.2 | System powinien zapewniać szybkie ładowanie interfejsu użytkownika | ≤ 3 s |
+| NF5.3 | System powinien obsługiwać zwiększoną liczbę użytkowników bez zauważalnego spadku wydajności | - |
 
-#### Bezpieczeństwo i zgodność
+#### NF6 – Interoperacyjność
 
 | ID | Wymaganie |
 |---|---|
-| NF3.1 | Wszystkie dane w spoczynku szyfrowane algorytmem AES-256 |
-| NF3.2 | Komunikacja sieciowa wyłącznie przez TLS 1.3 |
-| NF3.3 | Zgodność z RODO: prawo dostępu, sprostowania, usunięcia, przenoszenia danych |
-| NF3.4 | Pseudonimizacja danych pacjentów w środowiskach analitycznych |
-| NF3.5 | Logowanie audytu dla każdego dostępu do danych wrażliwych (kto, kiedy, co) |
-| NF3.6 | Certyfikacja ISO 27001 dla procesów zarządzania bezpieczeństwem |
-
-#### Interoperacyjność
-
-| ID | Wymaganie |
-|---|---|
-| NF4.1 | API zgodne ze standardem HL7 FHIR R4 |
-| NF4.2 | Obsługa formatu DICOM dla danych obrazowych |
-| NF4.3 | Możliwość integracji z systemami zewnętrznymi (NFZ, ZUS, inne szpitale) przez otwarte API |
-
-#### Utrzymywalność i monitorowanie
-
-| ID | Wymaganie |
-|---|---|
-| NF5.1 | Scentralizowane logowanie i monitoring (metryki, alerty, tracing) |
-| NF5.2 | Możliwość wdrażania aktualizacji bez przestoju (rolling deployment) |
-| NF5.3 | Środowiska: produkcja, staging, testowe – izolowane od siebie |
+| NF6.1 | System powinien umożliwiać przesyłanie danych EDM w formacie zgodnym ze standardem HL7 FHIR R4 |
+| NF6.2 | System powinien umożliwiać przechowywanie i przeglądanie danych obrazowych w formacie DICOM |
 
 ---
 
