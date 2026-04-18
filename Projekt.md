@@ -4,21 +4,27 @@
 
 ## 1. Analiza wymagań
 
-### 1.1 Interesariusze i ich problemy
+### 1.1 Aktorzy systemu i ich problemy
 
-| Interesariusz | Rola w systemie | Główne problemy / oczekiwania |
+| Aktor | Rola w systemie | Główne problemy / oczekiwania |
 |---|---|---|
-| **Pacjent** | Użytkownik końcowy korzystający z usług medycznych | Brak wglądu w własną dokumentację; konieczność osobistego umawiania wizyt; duplikacja badań przy zmianie placówki; brak możliwości zdalnej konsultacji |
-| **Lekarz / specjalista** | Świadczeniodawca usług medycznych | Brak dostępu do historii pacjenta z innych placówek; czasochłonne ręczne prowadzenie dokumentacji; opóźnienia w otrzymywaniu wyników laboratoryjnych; brak narzędzi do pracy zdalnej |
-| **Administracja szpitala / przychodni** | Zarządzanie operacyjne placówką | Brak centralnego wglądu w obłożenie i zasoby; trudności w rozliczeniach z NFZ; niemożność analizy trendów i planowania budżetu |
-| **Laboratorium diagnostyczne** | Dostarczyciel wyników badań | Ręczne lub papierowe przekazywanie wyników; brak integracji z EDM pacjenta; ryzyko błędów przy przepisywaniu danych |
-| **NFZ / płatnik** | Finansowanie i rozliczenia | Niejednolite formaty danych do rozliczeń; trudności w weryfikacji świadczeń; brak automatycznych raportów |
-| **UODO / organ regulacyjny** | Nadzór nad ochroną danych osobowych | Trudności w egzekwowaniu praw podmiotów danych (RODO); brak spójnych logów audytu; ryzyko wycieku danych wrażliwych |
-| **Administrator IT systemu** | Utrzymanie i bezpieczeństwo platformy | Zarządzanie wieloma izolowanymi systemami; brak centralnego monitoringu; trudności w zapewnieniu ciągłości działania |
+| **Pacjent** | Użytkownik systemu korzystający z usług medycznych | Brak wglądu we własną dokumentację medyczną; konieczność osobistego umawiania wizyt; brak możliwości konsultacji lekarskich bez wychodzenia z domu |
+| **Lekarz** | Użytkownik systemu zajmujący się leczeniem pacjentów | Brak dostępu do historii leczenia pacjenta z innych placówek; konieczność ręcznego prowadzenia dokumentacji medycznej; brak bezpośredniego dostępu do wyników badań pacjentów, w tym badań obrazowych; brak możliwości udzielania teleporad |
+| **Laboratorium** | Dostarczyciel wyników badań | Brak zautomatyzowanego przekazywania wyników badań (papierowe lub mailowe); brak integracji z EDM pacjenta; brak możliwości przeglądania statystyk dotyczących wykonanych badań |
+| **Administrator przychodni** | Użytkownik systemu posiadający wgląd operacyjny w funkcjonowanie placówki (wizyty, pacjenci, harmonogram) | Brak centralnego wglądu w harmonogram wizyt; trudności w zarządzaniu rejestracją pacjentów; brak możliwości generowania raportów dotyczących funkcjonowania placówki |
+| **Administrator IT systemu** | Użytkownik odpowiedzialny za monitorowanie działania systemu w środowisku produkcyjnym oraz utrzymanie jego bezpieczeństwa | Brak możliwości monitorowania działania systemu w czasie rzeczywistym; brak narzędzi do szybkiego wykrywania i diagnozowania błędów; brak automatycznych powiadomień o awariach; brak mechanizmów wspierających zapewnienie ciągłości działania systemu |
+| **Specjalista ds. zgodności** | Osoba odpowiedzialna za nadzór nad zgodnością systemu z przepisami i politykami bezpieczeństwa | Brak możliwości weryfikacji zgodności działania systemu z obowiązującymi przepisami prawa; brak narzędzi do wykazania spełnienia wymogów regulacyjnych |
+
+### 1.2 Zewnętrzne systemy publiczne
+
+| System zewnętrzny | Cel integracji |
+|---|---|
+| **Centrum e-Zdrowia** | Obsługa e-recept oraz e-skierowań |
+| **eWUŚ** | Możliwość weryfikacji ubezpieczenia pacjenta |
 
 ---
 
-### 1.2 Wymagania funkcjonalne
+### 1.3 Wymagania funkcjonalne
 
 #### F1 – Zarządzanie wizytami
 
