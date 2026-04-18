@@ -154,6 +154,11 @@
 
 ### 1.4 Szacowanie skali systemu (Back of Envelope)
 
+// TODO
+```
+Tutaj to back of envelope jest do poprawienia bo są na podstawie wymyślonych danych i nie pasują do obecnych wymagań (np. już nie mamy wideokonferencji, zmieniły się wymagania odnośnie wydajności itp.), trzeba znaleźć jakieś źródła danych i na podstawie liczby szpitali (5) i przychodni (20) pooszacowywać skalę systemu. Jakoś imo bardziej na chłopski rozum trzeba to zrobić w porównaniu do tego co jest na dole
+```
+
 #### Założenia bazowe
 
 | Parametr | Wartość | Uzasadnienie |
