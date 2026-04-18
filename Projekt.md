@@ -30,80 +30,68 @@
 
 | ID | Wymaganie |
 |---|---|
-| F1.1 | Pacjent może samodzielnie umawiać, odwoływać i przenosić wizyty przez portal lub aplikację mobilną |
-| F1.2 | System prezentuje dostępne terminy na podstawie kalendarza lekarza i zasobów placówki |
-| F1.3 | System wysyła automatyczne przypomnienia o wizycie (SMS, e-mail, push) |
-| F1.4 | Lekarz widzi dzienny harmonogram wizyt wraz z krótkim podsumowaniem historii pacjenta |
-
-<!-- | ID | Wymaganie |
-|---|---|
-| F1.1 | Pacjent może wyszukiwać dostepne terminy wizyt
-| F1.2 | Pacjent może umówić lub odwołać wizytę
-| F1.3 | Pacjent otrzyma powiadomienie (SMS, e-mail, push) o zblizajacej się wizycie
-| F1.4 | Lekarz może sprawdzić harmonogram wizyt z przypisanymi do niego pacjentami -->
-
+| F1.1 | System powinien umożliwiać pacjentowi umawianie i odwoływanie wizyt przez portal internetowy lub aplikację mobilną |
+| F1.2 | System powinien umożliwiać pacjentowi podgląd dostępnych terminów wizyt dla wybranych lekarzy i przychodni |
+| F1.3 | System powinien wysyłać pacjentowi automatyczne przypomnienia o nadchodzącej wizycie za pomocą wiadomości SMS |
+| F1.4 | System powinien umożliwiać użytkownikom posiadającym odpowiednie uprawnienia podgląd szczegółów wizyty (data, godzina, gabinet, dane pacjenta) |
+| F1.5 | System powinien umożliwiać lekarzowi podgląd dziennego harmonogramu wizyt |
+| F1.6 | System powinien umożliwiać lekarzowi zmianę statusu wizyty |
+| F1.7 | System powinien umożliwiać lekarzowi definiowanie dostępnych terminów wizyt |
 
 #### F2 – Telemedycyna
 
 | ID | Wymaganie |
 |---|---|
-| F2.1a | Pacjent może skontaktować się z lekarzem w ramach platformy |
-| F2.1b | Lekarz może prowadzić wizytę wideo z pacjentem w ramach platformy (szyfrowane połączenie) |
-| F2.2 | Podczas konsultacji online lekarz ma dostęp do EDM pacjenta |
-| F2.3 | Lekarz może wystawić e-receptę i e-skierowanie w trakcie lub po konsultacji wideo |
-| F2.4 | Nagrania konsultacji mogą być opcjonalnie przechowywane (za zgodą pacjenta) |
-| F2.5 | System obsługuje czat tekstowy jako alternatywę dla połączenia wideo |
+| F2.1 | System powinien umożliwiać pacjentowi kontakt z lekarzem poprzez czat tekstowy za pośrednictwem portalu internetowego lub aplikacji mobilnej |
+| F2.2 | System powinien umożliwiać przesyłanie załączników w ramach komunikacji czatowej między pacjentem a lekarzem |
+| F2.3 | System powinien umożliwiać pacjentowi umawianie wizyt w formie teleporad |
+| F2.4 | System powinien umożliwiać lekarzowi dostęp do EDM pacjenta |
+| F2.5 | System powinien umożliwiać lekarzowi wystawianie e-recept oraz e-skierowań w ramach konsultacji |
 
 #### F3 – Elektroniczna Dokumentacja Medyczna (EDM)
 
 | ID | Wymaganie |
 |---|---|
-| F3.1 | Każdy pacjent posiada ujednolicony rekord medyczny dostępny we wszystkich placówkach grupy |
-| F3.2 | Lekarz może tworzyć, edytować i przeglądać notatki kliniczne, diagnozy i plany leczenia |
-| F3.3 | System przechowuje i udostępnia wyniki badań obrazowych (DICOM) i laboratoryjnych |
-| F3.4 | Pacjent może przeglądać własną dokumentację i pobierać jej fragmenty |
-| F3.5 | Historia modyfikacji rekordów jest w pełni audytowalna (kto, kiedy, co zmienił) |
-| F3.6 | EDM jest zgodna ze standardem HL7 FHIR R4 |
+| F3.1 | System powinien umożliwiać przechowywanie ujednoliconej dokumentacji medycznej pacjenta w ramach EDM |
+| F3.2 | System powinien umożliwiać lekarzowi tworzenie, edytowanie i przeglądanie EDM pacjenta |
+| F3.3 | System powinien umożliwiać pacjentowi przeglądanie i pobieranie fragmentów EDM przypisanej do niego |
+| F3.4 | System powinien rejestrować historię zmian oraz dostępów do EDM, wraz z informacją o użytkowniku i czasie wykonania operacji oraz jej typie |
+| F3.5 | System powinien umożliwiać przechowywanie i przeglądanie załączników z wynikami badań w ramach EDM w formatach PDF oraz DICOM |
 
 #### F4 – Integracja laboratoryjna
 
 | ID | Wymaganie |
 |---|---|
-| F4.1 | Laboratorium przesyła wyniki elektronicznie bezpośrednio do EDM pacjenta |
-| F4.2 | Lekarz otrzymuje powiadomienie o dostępności nowych wyników |
-| F4.3 | Wyniki krytyczne (alarmowe) generują natychmiastowy alert dla lekarza prowadzącego |
-| F4.4 | System obsługuje zlecenia badań laboratoryjnych wystawiane elektronicznie przez lekarza |
+| F4.1 | System powinien umożliwiać laboratorium przesyłanie wyników badań bezpośrednio do EDM pacjenta w formatach PDF oraz DICOM |
+| F4.2 | System powinien powiadamiać pacjenta o dostępności wyników badań za pomocą wiadomości SMS |
+| F4.3 | System powinien umożliwiać lekarzowi wystawianie zleceń badań laboratoryjnych dla pacjenta |
+| F4.4 | System powinien umożliwiać wyszukiwanie zleceń badań laboratoryjnych na podstawie ich identyfikatora |
+| F4.5 | System powinien umożliwiać pacjentowi podgląd i pobieranie wyników badań laboratoryjnych na podstawie numeru PESEL oraz identyfikatora badania |
 
-#### F5 – Rozliczenia i finanse
-
-| ID | Wymaganie |
-|---|---|
-| F5.1 | System automatycznie generuje dokumenty rozliczeniowe dla NFZ na podstawie zrealizowanych świadczeń |
-| F5.2 | Pacjent może przeglądać historię rozliczeń i opłat |
-| F5.3 | System obsługuje płatności online za świadczenia komercyjne |
-| F5.4 | Raporty finansowe dostępne są dla administracji w panelu analitycznym |
-
-#### F6 – Analityka i raportowanie
+#### F5 – Analityka i raportowanie
 
 | ID | Wymaganie |
 |---|---|
-| F6.1 | Panel analityczny prezentuje obłożenie placówek, czas oczekiwania i utilizację zasobów |
-| F6.2 | Administrator placówki może generować raporty epidemiologiczne i kliniczne |
-| F6.3 | Administrator placówki może zarządzać personelem i harmonogramami na poziomie placówki i grupy |
-| F6.4 | Dane analityczne są zanonimizowane i nie zawierają PII pacjentów |
+| F5.1 | System powinien umożliwiać generowanie statystyk dotyczących liczby i rodzaju wykonanych badań laboratoryjnych |
+| F5.2 | System powinien umożliwiać administratorowi przychodni generowanie statystyk dotyczących liczby wizyt |
+| F5.3 | System powinien umożliwiać administratorowi przychodni wizualizację zajętości gabinetów |
+| F5.4 | System powinien umożliwiać administratorowi przychodni podgląd zaplanowanych wizyt w konkretnych placówkach |
 
-#### F7 – Bezpieczeństwo i zarządzanie dostępem
+#### F6 – Bezpieczeństwo
 
 | ID | Wymaganie |
 |---|---|
-| F7.1 | Wielopoziomowy model uprawnień: pacjent, lekarz, specjalista, admin placówki, admin systemu |
-| F7.2 | Uwierzytelnianie dwuskładnikowe (MFA) dla personelu medycznego |
-| F7.3 | Pacjent może udzielać i cofać zgodę na dostęp do swojej dokumentacji |
-| F7.4 | Wszystkie operacje na danych wrażliwych są logowane do niemodyfikowalnego logu audytu |
+| F6.1 | System powinien dostosowywać dostęp do funkcji i widoków w zależności od przypisanej użytkownikowi roli |
+| F6.2 | System powinien wymagać uwierzytelniania dwuskładnikowego (MFA) dla użytkowników innych niż pacjent |
+| F6.3 | System powinien automatycznie wylogowywać użytkownika po określonym czasie bezczynności |
 
 ---
 
 ### 1.3 Wymagania niefunkcjonalne
+
+TODO: niefunkcjonalne poprawić
+
+| F7.4 | Wszystkie operacje na danych wrażliwych są logowane do niemodyfikowalnego logu audytu |
 
 #### Dostępność i niezawodność
 
