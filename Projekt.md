@@ -45,7 +45,6 @@
 | F1.5 | System powinien umożliwiać lekarzowi podgląd dziennego harmonogramu wizyt |
 | F1.6 | System powinien umożliwiać lekarzowi zmianę statusu wizyty |
 | F1.7 | System powinien umożliwiać lekarzowi definiowanie dostępnych terminów wizyt |
-| F1.8 | System powinien umożliwiać pacjentowi dokonanie płatności za wizytę prywatną |
 
 #### F2 – Telemedycyna
 
