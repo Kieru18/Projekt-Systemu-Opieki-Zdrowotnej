@@ -97,7 +97,7 @@
 
 ---
 
-### 1.3 Wymagania niefunkcjonalne
+### 1.4 Wymagania niefunkcjonalne
 
 #### NF1 - Zgodność i ochrona danych
 
@@ -151,7 +151,7 @@
 
 ---
 
-### 1.4 Szacowanie skali systemu (Back of Envelope)
+### 1.5 Szacowanie skali systemu (Back of Envelope)
 
 // TODO
 ```
@@ -250,8 +250,21 @@ Szczytowe zapotrzebowanie:      ~400 Mbps
 
 > Powyższe obliczenia wskazują, że system należy zaprojektować z myślą o przechowywaniu dziesiątek terabajtów danych (zdominowanych przez obrazowanie medyczne), obsłudze tysięcy jednoczesnych użytkowników oraz przepustowości rzędu setek Mbps dla strumieni wideo. Wymaga to architektury chmurowej z automatycznym skalowaniem, obiektowego magazynu danych dla plików DICOM oraz oddzielnej warstwy analitycznej izolowanej od systemu transakcyjnego.
 
+## 2. Analiza wymagań
 
-## Diagram wdrożenia
+### 2.1 Diagram kontekstu
+
+![Diagram C4, poziom 1](./diagrams/context.svg)
+
+### 2.2 Diagram kontenerów
+
+![Diagram C4, poziom 2](./diagrams/container.svg)
+
+### 2.3 Diagram komponentów - usługa umawiania wizyt
+
+![Diagram C4, poziom 3](./diagrams/component.svg)
+
+### 2.4 Diagram wdrożenia
 
 ### Decyzje architektoniczne
 
@@ -287,3 +300,5 @@ Warstwa analityczna nie posiada kopii w regionie zapasowym, ponieważ zawiera wy
 
 8. **Wzajemne uwierzytelnianie przy integracjach zewnętrznych**
 Standardowe szyfrowanie transmisji (skr. TLS — *Transport Layer Security*, czyli bezpieczeństwo warstwy transportowej) chroni dane przed podsłuchem, ale weryfikuje tożsamość wyłącznie serwera. Wzajemny protokół uwierzytelniania (skr. mTLS — *mutual TLS*) wymaga, by obie strony połączenia — zarówno klient, jak i serwer — potwierdziły swoją tożsamość certyfikatem cyfrowym. Połączenia z systemami zewnętrznymi — Narodowym Funduszem Zdrowia, systemem Elektronicznej Weryfikacji Uprawnień Świadczeniobiorców (eWUŚ) oraz Centrum e-Zdrowia — realizowane są właśnie z użyciem wzajemnego uwierzytelniania, co uniemożliwia podszycie się pod uprawniony system nawet w przypadku wycieku adresu sieciowego usługi.
+
+### 2.5 Diagram encji/klas
