@@ -1,5 +1,12 @@
-# Realizacja projektu
+# Realizacja projektu - System Opieki Zdrowotnej (SOZ)
 
+
+| | |
+|-|-|
+| Jakub Kieruczenko | 318669 |
+| Aleksander Stanoch | XXXXXX |
+| Sebastian Abramowski | YYYYYY |
+| Kazimierz Lipski | ZZZZZZ |
 ---
 
 ## 1. Analiza wymagań
