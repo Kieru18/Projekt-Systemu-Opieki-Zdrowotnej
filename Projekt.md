@@ -4,9 +4,11 @@
 | | |
 |-|-|
 | Jakub Kieruczenko | 318669 |
-| Aleksander Stanoch | XXXXXX |
-| Sebastian Abramowski | YYYYYY |
-| Kazimierz Lipski | ZZZZZZ |
+| Aleksander Stanoch | 325230 |
+| Sebastian Abramowski | 325142 |
+| Kazimierz Lipski | ?????? |
+| Data | 20.04.2026 |
+
 ---
 
 ## 1. Analiza wymagań
@@ -286,6 +288,8 @@ Przyrost załączników / rok:     ~0.13 TB
 ![Diagram C4, poziom 3](./diagrams/component.svg)
 
 ### 2.4 Diagram wdrożenia
+
+![Diagram C4, poziom 3](./diagrams/implementation.svg)
 
 ### Decyzje architektoniczne
 
