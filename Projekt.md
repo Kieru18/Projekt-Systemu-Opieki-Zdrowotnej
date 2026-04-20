@@ -1,15 +1,23 @@
+<style>
+  @page { margin: 12mm; }
+  table { page-break-inside: avoid; break-inside: avoid; }
+  pre, code { page-break-inside: avoid; break-inside: avoid; }
+  blockquote { page-break-inside: avoid; break-inside: avoid; }
+  h1, h2, h3, h4 { page-break-after: avoid; break-after: avoid; }
+</style>
+
 # Realizacja projektu - System Opieki Zdrowotnej (SOZ)
-
-
 | | |
 |-|-|
 | Jakub Kieruczenko | 318669 |
 | Aleksander Stanoch | 325230 |
 | Sebastian Abramowski | 325142 |
-| Kazimierz Lipski | ?????? |
-| Data | 20.04.2026 |
+| Kazimierz Lipski | 310800 |
 
 ---
+
+<div style="page-break-after: always;" />
+
 
 ## 1. Analiza wymagań
 
@@ -23,6 +31,8 @@
 | **Administrator placówki** | Użytkownik systemu posiadający wgląd operacyjny w funkcjonowanie placówki (wizyty, pacjenci, harmonogram) | Brak centralnego wglądu w harmonogram wizyt; trudności w zarządzaniu rejestracją pacjentów; brak możliwości generowania raportów dotyczących funkcjonowania placówki |
 | **Administrator IT** | Użytkownik odpowiedzialny za monitorowanie działania systemu w środowisku produkcyjnym oraz utrzymanie jego bezpieczeństwa | Brak możliwości monitorowania działania systemu w czasie rzeczywistym; brak narzędzi do szybkiego wykrywania i diagnozowania błędów; brak automatycznych powiadomień o awariach |
 | **Specjalista ds. zgodności** | Osoba odpowiedzialna za nadzór nad zgodnością systemu z przepisami i politykami bezpieczeństwa | Brak możliwości weryfikacji zgodności działania systemu z obowiązującymi przepisami prawa; brak narzędzi do wykazania spełnienia wymogów regulacyjnych |
+
+<div style="page-break-after: always;" />
 
 ### 1.2 Zewnętrzne systemy publiczne
 
@@ -54,6 +64,8 @@
 | F1.5 | System powinien umożliwiać lekarzowi podgląd dziennego harmonogramu wizyt |
 | F1.6 | System powinien umożliwiać lekarzowi zmianę statusu wizyty |
 | F1.7 | System powinien umożliwiać lekarzowi definiowanie dostępnych terminów wizyt |
+
+<div style="page-break-after: always;" />
 
 #### F2 – Telemedycyna
 
@@ -119,6 +131,8 @@
 | NF1.5 | System powinien umożliwiać przechowywanie EDM przez wymagany okres czasu |
 | NF1.6 | System powinien zapewniać przechowywanie EDM w sposób gwarantujący jej integralność, kompletność oraz możliwość odtworzenia |
 
+<div style="page-break-after: always;" />
+
 #### NF2 – Monitorowanie systemu
 
 | ID | Wymaganie |
@@ -151,6 +165,8 @@
 | NF5.2 | System powinien zapewniać szybkie ładowanie interfejsu użytkownika | ≤ 3 s |
 | NF5.3 | System powinien obsługiwać zwiększoną liczbę użytkowników bez zauważalnego spadku wydajności | - |
 
+<div style="page-break-after: always;" />
+
 #### NF6 – Interoperacyjność
 
 | ID | Wymaganie |
@@ -177,6 +193,8 @@ Poniższe oszacowanie ma wyznaczyć rząd wielkości systemu, a nie precyzyjną 
 | Wizyty kończące się badaniem obrazowym | 8% | DICOM dotyczy tylko części procesu diagnostycznego |
 | Aktywne konta pacjentów | ~300 000 | Rząd wielkości dla grupy placówek tej skali |
 | Aktywne konta personelu i administracji | ~4 000 | Lekarze, rejestracja, laboratoria, administratorzy |
+
+<div style="page-break-after: always;" />
 
 #### Skala obsługiwanych wizyt
 
@@ -216,6 +234,8 @@ Dane pacjentów i słowniki:      rząd wielkości pojedynczych GB
 ```
 
 Same rekordy relacyjne nie są duże; przestrzeń dyskową w systemie ochrony zdrowia zużywają głównie załączniki medyczne, pliki PDF i obrazy DICOM, a nie tabele transakcyjne.
+
+<div style="page-break-after: always;" />
 
 #### Wyniki laboratoryjne
 
@@ -259,6 +279,8 @@ Przyrost załączników / rok:     ~0.13 TB
 | Logi, kopie zapasowe, metadane | ~4.5 TB |
 | **Łącznie** | **~18 TB** |
 
+<div style="page-break-after: always;" />
+
 #### Podsumowanie – kluczowe parametry projektowe
 
 | Parametr | Wartość |
@@ -279,17 +301,25 @@ Przyrost załączników / rok:     ~0.13 TB
 
 ![Diagram C4, poziom 1](./diagrams/context.svg)
 
+<div style="page-break-after: always;" />
+
 ### 2.2 Diagram kontenerów
 
 ![Diagram C4, poziom 2](./diagrams/container.svg)
+
+<div style="page-break-after: always;" />
 
 ### 2.3 Diagram komponentów - usługa umawiania wizyt
 
 ![Diagram C4, poziom 3](./diagrams/component.svg)
 
+<div style="page-break-after: always;" />
+
 ### 2.4 Diagram wdrożenia
 
 ![Diagram C4, poziom 3](./diagrams/implementation.svg)
+
+<div style="page-break-after: always;" />
 
 ### Decyzje architektoniczne
 
@@ -331,5 +361,7 @@ Najważniejsze założenia modelu danych:
 * **Wyniki badań**, dokumenty PDF i obrazy DICOM są modelowane oddzielnie od wpisów EDM, aby uprościć integrację z laboratoriami i systemami obrazowania.
 * **Audyt zdarzeń** oraz **zgody pacjenta** zostały wydzielone jako osobne encje ze względu na wymagania RODO, śledzenie dostępu do EDM oraz rozliczalność operacji.
 
-![Diagram encji/klas](./diagrams/klasy-ais.drawio.png)
+<div style="page-break-after: always;" />
+
+<img src="./diagrams/klasy-ais.drawio.png" style="max-width: 100%; max-height: 257mm; display: block; margin: 0 auto;" />
 
