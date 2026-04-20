@@ -331,5 +331,5 @@ Najważniejsze założenia modelu danych:
 * **Wyniki badań**, dokumenty PDF i obrazy DICOM są modelowane oddzielnie od wpisów EDM, aby uprościć integrację z laboratoriami i systemami obrazowania.
 * **Audyt zdarzeń** oraz **zgody pacjenta** zostały wydzielone jako osobne encje ze względu na wymagania RODO, śledzenie dostępu do EDM oraz rozliczalność operacji.
 
-![Diagram encji/klas](./diagrams/klasy-ais.drawio.svg)
+![Diagram encji/klas](./diagrams/klasy-ais.drawio.png)
 
