@@ -153,102 +153,116 @@
 
 ### 1.5 Szacowanie skali systemu (Back of Envelope)
 
-// TODO
-```
-Tutaj to back of envelope jest do poprawienia bo są na podstawie wymyślonych danych i nie pasują do obecnych wymagań (np. już nie mamy wideokonferencji, zmieniły się wymagania odnośnie wydajności itp.), trzeba znaleźć jakieś źródła danych i na podstawie liczby szpitali (5) i przychodni (20) pooszacowywać skalę systemu. Jakoś imo bardziej na chłopski rozum trzeba to zrobić w porównaniu do tego co jest na dole
-```
+Poniższe oszacowanie ma wyznaczyć rząd wielkości systemu, a nie precyzyjną prognozę biznesową. Punktem wyjścia są dane z treści zadania: sieć obejmuje **5 szpitali i 20 przychodni**. Pozostałe liczby są jawnymi założeniami operacyjnymi przyjętymi dla typowego dnia roboczego, tak aby oszacowanie było spójne z aktualnymi wymaganiami: portal pacjenta, EDM, teleporady oparte o czat i załączniki, integracja laboratoryjna oraz obrazy DICOM.
 
 #### Założenia bazowe
 
 | Parametr | Wartość | Uzasadnienie |
 |---|---|---|
 | Placówki | 25 (5 szpitali + 20 przychodni) | Dane z treści zadania |
-| Łóżka szpitalne | 1 500 (5 × 300) | Typowy szpital regionalny |
-| Personel medyczny | ~650 lekarzy, ~2 000 pielęgniarek/techników | Szacunek dla sieci tej skali |
-| Personel administracyjny | ~500 osób | ~20 osób/placówka |
-| Zarejestrowanych pacjentów | **500 000** | Obszar obsługi ~700 000 mieszkańców |
+| Wizyty w przychodni | 120 / dzień / placówkę | Rząd wielkości dla kilku aktywnych gabinetów w trybie dziennym |
+| Wizyty ambulatoryjne w szpitalu | 180 / dzień / placówkę | Poradnie przyszpitalne, konsultacje i kontrola pacjentów |
+| Dni robocze dla ruchu ambulatoryjnego | 250 / rok | Uproszczone założenie do obliczeń rocznych |
+| Udział teleporad | 8% wszystkich wizyt | Teleporada istnieje w wymaganiach, ale bez wideopołączeń |
+| Wizyty kończące się zleceniem badań lab. | 35% | Nie każda konsultacja generuje badania |
+| Wizyty kończące się badaniem obrazowym | 8% | DICOM dotyczy tylko części procesu diagnostycznego |
+| Aktywne konta pacjentów | ~300 000 | Rząd wielkości dla grupy placówek tej skali |
+| Aktywne konta personelu i administracji | ~4 000 | Lekarze, rejestracja, laboratoria, administratorzy |
 
-#### Ruch użytkowników
-
-```
-Dziennie aktywnych pacjentów:   ~10 000  (2% z 500 000)
-Dziennie aktywnego personelu:   ~3 150   (personel medyczny + admin)
-Łącznie DAU:                    ~13 000
-
-Szczyt jednoczesnych sesji:     ~2 000   (15% DAU w godzinie szczytu)
-Szczyt req/s (API):             ~2 000   (zakładając ~1 req/s/użytkownika)
-Średnie req/s:                  ~200     (poza szczytem)
-```
-
-#### Dane – wizyty
+#### Skala obsługiwanych wizyt
 
 ```
-Wizyt dziennie:                 5 000    (200/placówka/dzień)
-Wizyt rocznie:                  ~1 500 000
-Rozmiar rekordu wizyty:         ~5 KB
-Roczny przyrost danych wizyt:   ~7.5 GB
+Przychodnie:                    20 x 120  = 2 400 wizyt / dzień
+Szpitale (ambulatoryjnie):       5 x 180  =   900 wizyt / dzień
+Łącznie:                                    3 300 wizyt / dzień
+
+Wizyty rocznie:                 3 300 x 250 = ~825 000
+Teleporady dziennie:            8% z 3 300   = ~260
 ```
 
-#### Dane – wyniki laboratoryjne
+#### Ruch użytkowników i obciążenie aplikacji
 
 ```
-Wyników dziennie:               10 000   (2 wyniki/wizyta)
-Rozmiar jednego wyniku:         ~50 KB
-Dzienny przyrost:               ~500 MB
-Roczny przyrost:                ~180 GB
+Dziennie aktywnych pacjentów:   ~4 000
+Dziennie aktywnego personelu:   ~2 500
+Łącznie DAU:                    ~6 500
+
+Szczyt jednoczesnych sesji:     ~1 000
+Nominalny ruch API:             ~80 req/s   (1 000 sesji, średnio 1 akcja / 12 s)
+Ruch szczytowy z zapasem:       200-250 req/s
+```
+
+Taki poziom obciążenia jest spójny z wymaganiami niefunkcjonalnymi: czas odpowiedzi podstawowych operacji do 1 s i czas ładowania interfejsu do 3 s. System nie powinien być projektowany "na styk", tylko z zapasem na poranne i popołudniowe piki rejestracji, publikację wyników oraz wysyłkę powiadomień.
+
+#### Dane transakcyjne i EDM
+
+```
+Rekord wizyty:                  ~6 KB
+Przyrost danych wizyt / rok:    825 000 x 6 KB  = ~5 GB
+
+Wpisy EDM i notatki:            średnio 3 wpisy po 25 KB / wizytę
+Przyrost EDM / rok:             825 000 x 75 KB = ~60 GB
+
+Dane pacjentów i słowniki:      rząd wielkości pojedynczych GB
+```
+
+Same rekordy relacyjne nie są duże; przestrzeń dyskową w systemie ochrony zdrowia zużywają głównie załączniki medyczne, pliki PDF i obrazy DICOM, a nie tabele transakcyjne.
+
+#### Wyniki laboratoryjne
+
+```
+Zlecenia lab. dziennie:         35% z 3 300     = ~1 155
+Wyniki na jedno zlecenie:       średnio 3
+Pakiety wyników dziennie:       ~3 465
+Średni rozmiar pakietu:         ~0.5 MB (PDF + metadane)
+
+Przyrost danych / dzień:        ~1.7 GB
+Przyrost danych / rok:          ~0.4 TB
 ```
 
 #### Dane – obrazowanie medyczne (DICOM)
 
 ```
-Badań obrazowych dziennie:      500      (10% pacjentów ambulatoryjnych)
-Rozmiar jednego badania:        ~100 MB  (TK/MRI; RTG ~10 MB, USG ~50 MB)
-Dzienny przyrost:               ~50 GB
-Roczny przyrost:                ~18 TB
-```
-
-#### Dane – EDM (dokumentacja kliniczna)
-
-```
-Rekordów pacjentów:             500 000
-Rozmiar rekordu (bez obrazów):  ~5 MB
-Łączna baza EDM:                ~2.5 TB
-Roczny przyrost EDM:            ~500 GB  (nowe notatki, wyniki tekstowe)
+Badania obrazowe dziennie:      8% z 3 300      = ~260
+Średni rozmiar badania:         ~60 MB
+Przyrost danych / dzień:        ~15.6 GB
+Przyrost danych / rok:          ~3.9 TB
 ```
 
 #### Telemedycyna
 
 ```
-Konsultacji wideo dziennie:     500      (10% wizyt)
-Szczyt jednoczesnych połączeń:  ~200
-Przepustowość na sesję wideo:   2 Mbps (720p, kodek VP8/H.264)
-Szczytowe zapotrzebowanie:      ~400 Mbps
+Teleporady dziennie:            ~260
+Wiadomości na teleporadę:       średnio 20
+Wiadomości czatowe / dzień:     ~5 200
+Załączniki / teleporadę:        średnio 2 po 1 MB
+Przyrost załączników / rok:     ~0.13 TB
 ```
 
 #### Całkowite zapotrzebowanie na przestrzeń dyskową (horyzont 3 lat)
 
 | Kategoria danych | Rozmiar (3 lata) |
 |---|---|
-| Obrazowanie medyczne (DICOM) | ~54 TB |
-| EDM (dokumentacja kliniczna) | ~4 TB |
-| Wyniki laboratoryjne | ~0.5 TB |
-| Nagrania wideo (opcjonalne) | ~10 TB |
-| Logi, kopie zapasowe, metadane | ~2 TB |
-| **Łącznie** | **~70 TB** |
+| Obrazowanie medyczne (DICOM) | ~11.7 TB |
+| Wyniki laboratoryjne | ~1.2 TB |
+| Załączniki z teleporad i komunikacji | ~0.4 TB |
+| Rekordy wizyt i EDM | ~0.2 TB |
+| Logi, kopie zapasowe, metadane | ~4.5 TB |
+| **Łącznie** | **~18 TB** |
 
 #### Podsumowanie – kluczowe parametry projektowe
 
 | Parametr | Wartość |
 |---|---|
-| Użytkownicy (łącznie) | ~503 000 |
-| Szczyt jednoczesnych sesji | ~2 000 |
-| Szczyt API req/s | ~2 000 |
-| Dane do przechowania (3 lata) | ~70 TB |
-| Roczny przyrost danych | ~19 TB/rok |
-| Szczytowa przepustowość wideo | ~400 Mbps |
-| Wymagana dostępność | 99.9% |
+| Użytkownicy (łącznie) | ~304 000 |
+| Szczyt jednoczesnych sesji | ~1 000 |
+| Szczyt API req/s | ~200-250 |
+| Dane do przechowania (3 lata) | ~18 TB |
+| Roczny przyrost danych | ~6 TB/rok |
+| Model teleporady | czat + załączniki |
+| Wymagana dostępność | 99.5% |
 
-> Powyższe obliczenia wskazują, że system należy zaprojektować z myślą o przechowywaniu dziesiątek terabajtów danych (zdominowanych przez obrazowanie medyczne), obsłudze tysięcy jednoczesnych użytkowników oraz przepustowości rzędu setek Mbps dla strumieni wideo. Wymaga to architektury chmurowej z automatycznym skalowaniem, obiektowego magazynu danych dla plików DICOM oraz oddzielnej warstwy analitycznej izolowanej od systemu transakcyjnego.
+> Powyższe obliczenia wskazują, że system należy projektować przede wszystkim pod retencję danych medycznych, audyt i przechowywanie obrazów DICOM. Największym obciążeniem pojemnościowym są pliki diagnostyczne, a nie ruch telemedyczny, ponieważ obecne wymagania obejmują czat i załączniki zamiast połączeń wideo.
 
 ## 2. Analiza wymagań
 
@@ -302,3 +316,14 @@ Warstwa analityczna nie posiada kopii w regionie zapasowym, ponieważ zawiera wy
 Standardowe szyfrowanie transmisji (skr. TLS — *Transport Layer Security*, czyli bezpieczeństwo warstwy transportowej) chroni dane przed podsłuchem, ale weryfikuje tożsamość wyłącznie serwera. Wzajemny protokół uwierzytelniania (skr. mTLS — *mutual TLS*) wymaga, by obie strony połączenia — zarówno klient, jak i serwer — potwierdziły swoją tożsamość certyfikatem cyfrowym. Połączenia z systemami zewnętrznymi — Narodowym Funduszem Zdrowia, systemem Elektronicznej Weryfikacji Uprawnień Świadczeniobiorców (eWUŚ) oraz Centrum e-Zdrowia — realizowane są właśnie z użyciem wzajemnego uwierzytelniania, co uniemożliwia podszycie się pod uprawniony system nawet w przypadku wycieku adresu sieciowego usługi.
 
 ### 2.5 Diagram encji/klas
+
+Najważniejsze założenia modelu danych:
+
+* **Pacjent** jest centralną encją domenową i posiada powiązania z wizytami, epizodami opieki, wynikami badań, zgodami oraz powiadomieniami.
+* **Wizyta** reprezentuje rezerwację terminu i może mieć charakter stacjonarny lub zdalny; dla teleporady tworzona jest powiązana encja **Teleporada**.
+* **Epizod opieki** reprezentuje faktyczne zdarzenie medyczne powstałe w wyniku wizyty i stanowi kontener dla wpisów EDM, recept, skierowań oraz zleceń badań.
+* **Wyniki badań**, dokumenty PDF i obrazy DICOM są modelowane oddzielnie od wpisów EDM, aby uprościć integrację z laboratoriami i systemami obrazowania.
+* **Audyt zdarzeń** oraz **zgody pacjenta** zostały wydzielone jako osobne encje ze względu na wymagania RODO, śledzenie dostępu do EDM oraz rozliczalność operacji.
+
+![Diagram encji/klas](./diagrams/klasy-ais.drawio.svg)
+
