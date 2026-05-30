@@ -365,3 +365,177 @@ Najważniejsze założenia modelu danych:
 
 <img src="./diagrams/klasy-ais.drawio.png" style="max-width: 100%; max-height: 257mm; display: block; margin: 0 auto;" />
 
+
+## 3. Wybór technologii
+
+### 3.1 Frontend
+
+| Warstwa | Technologia | Uzasadnienie |
+|---|---|---|
+| Portal webowy (pacjenci, personel) | **React 18** (TypeScript) | Dojrzały ekosystem, wsparcie dla PWA, bogata oferta komponentów dostępnościowych (WCAG 2.1); TypeScript zmniejsza ryzyko błędów typów w złożonym modelu domenowym |
+| Aplikacja mobilna (pacjenci) | **React Native** | Współdzielenie logiki biznesowej i komponentów z portalem webowym; jeden zespół frontendowy utrzymuje oba kanały |
+| Komponent przeglądania DICOM | **Cornerstone.js** | Biblioteka open-source dedykowana renderowaniu obrazów medycznych w przeglądarce; obsługuje formaty DICOM, wieloramkowe serie i podstawowe narzędzia pomiarowe |
+| Czat telemedyczny | **@microsoft/signalr** (klient JS) | Oficjalny klient JavaScript dla ASP.NET Core SignalR; kompatybilny protokołowo z backendem .NET; obsługuje WebSocket z automatycznym fallback do long-polling |
+
+### 3.2 Backend
+
+| Warstwa | Technologia | Uzasadnienie |
+|---|---|---|
+| Mikroserwisy domenowe | **.NET 10 (C#)** | Wysoka wydajność środowiska uruchomieniowego, bogaty ekosystem bibliotek medycznych i HL7 FHIR (Firely .NET SDK), silne typowanie i dojrzałe narzędzia diagnostyczne; spójna platforma dla całego zespołu backendowego |
+| Brama API | **Azure API Management** | Zarządzany produkt chmurowy eliminujący utrzymanie własnej bramy; natywna integracja z Azure AD B2C i politykami OAuth 2.0 / JWT |
+| Równoważenie obciążenia warstwy 7 | **Azure Application Gateway** z modułem WAF v2 | Wbudowana zapora aplikacji webowych, terminacja TLS, trasowanie oparte na ścieżce URL |
+| Usługa czatu telemedycznego | **SignalR** (ASP.NET Core) | Natywna integracja z ekosystemem .NET; zarządzany backplane Azure SignalR Service eliminuje konieczność konfiguracji Redis jako brokera komunikatów w klastrze |
+| Przetwarzanie zleceń i powiadomień | **MassTransit** (consumer workers) | Abstrakcja nad Azure Service Bus; obsługa saga pattern i automatyczny retry z exponential backoff |
+
+### 3.3 Integracja
+
+| Obszar | Technologia / Standard | Uzasadnienie |
+|---|---|---|
+| Wymiana danych EDM między systemami | **HL7 FHIR R4** (REST API) | Wymaganie NF6.1; standard wskazany przez Centrum e-Zdrowia dla integracji systemów ochrony zdrowia w Polsce |
+| Obrazowanie medyczne | **DICOM** (DICOMweb: WADO-RS, STOW-RS) | Wymaganie NF6.2 i F3.5; DICOMweb umożliwia przesyłanie i pobieranie obrazów przez HTTP bez specjalistycznych klientów DICOM |
+| e-Recepty i e-Skierowania | REST API **Centrum e-Zdrowia** (P1) | Obowiązkowy punkt integracji; uwierzytelnianie mTLS z certyfikatem wydanym przez Centrum e-Zdrowia |
+| Weryfikacja ubezpieczenia | REST API **eWUŚ** | Synchroniczne zapytania w trakcie rejestracji wizyty; mTLS |
+| Rozliczenia świadczeń | SOAP API **NFZ**  | Asynchroniczne przesyłanie raportów; mTLS |
+| Asynchroniczna komunikacja wewnętrzna | **Azure Service Bus** (kolejki i tematy) | Gwarantowane dostarczenie, dead-letter queue, wsparcie dla wzorca transakcji rozsyłkowej (Outbox Pattern) |
+| Powiadomienia SMS | **Azure Communication Services** | Zarządzana usługa chmurowa; integracja w jednym środowisku Azure; eliminuje zależność od zewnętrznego dostawcy bramki SMS |
+
+### 3.4 Bazy danych i przechowywanie danych
+
+| Rodzaj danych | Technologia | Uzasadnienie |
+|---|---|---|
+| Dane transakcyjne (wizyty, EDM, użytkownicy, zlecenia) | **Azure Database for PostgreSQL** | Relacyjna baza ACID z rozszerzeniem `uuid-ossp`, `pgcrypto` i `pg_audit`; natywna replikacja geograficzna do regionu zapasowego; obsługa JSONB dla elastycznych wpisów EDM |
+| Pliki binarne (PDF, DICOM, załączniki czatu) | **Azure Blob Storage** (tier Hot / Cool / Archive) | Obiekty o dowolnym rozmiarze; automatyczne przenoszenie do tańszych tierów na podstawie wieku pliku (lifecycle management); geograficzna replikacja RA-GRS |
+| Dane sesji i cache | **Azure Cache for Redis** (tier Standard z replikacją) | Magazyn in-memory o niskim latency; przechowywanie tokenów sesji, harmonogramów dostępności lekarzy i wyników często odpytywanych widoków |
+| Dane analityczne | **Azure Synapse Analytics** (dedykowana pula SQL) | Kolumnowe przechowywanie danych zoptymalizowane pod agregacje; natywna integracja z Power BI |
+
+### 3.5 Analityka i raportowanie
+
+| Komponent | Technologia | Uzasadnienie |
+|---|---|---|
+| Warstwa analityczna | **Azure Synapse Analytics** | Zarządzany magazyn danych kolumnowych; integruje silnik ETL (Synapse Pipelines) i środowisko zapytań SQL w jednym produkcie |
+| Potok ETL | **Synapse Pipelines** | Orkiestracja transferu danych z PostgreSQL do Synapse; harmonogramowane i wyzwalane przepływy danych |
+| Dashboardy i raporty | **Power BI Embedded** | Natywna integracja z Azure Synapse; możliwość osadzenia raportów bezpośrednio w portalu administracyjnym bez logowania do zewnętrznego narzędzia; dostępne szablony raportów NFZ |
+
+### 3.6 Infrastruktura i hosting
+
+| Komponent | Technologia | Uzasadnienie |
+|---|---|---|
+| Orkiestracja kontenerów | **Azure Kubernetes Service (AKS)** | Zarządzany Kubernetes z integracją Azure AD, automatycznym skalowaniem węzłów i wsparciem dla stref dostępności |
+| Globalny punkt wejścia i CDN | **Azure Front Door** z modułem WAF | Sieć brzegowa z ponad 100 lokalizacjami PoP; automatyczne failover między regionami; wbudowana ochrona WAF zgodna z OWASP Top 10 |
+| Zarządzanie sekrety i certyfikatami | **Azure Key Vault** | Centralne przechowywanie kluczy szyfrowania, certyfikatów mTLS i sekretów serwisowych; rotacja kluczy bez restartu usług |
+| Tożsamość i dostęp | **Azure Active Directory B2C** (pacjenci) + **Azure AD** (personel) | B2C obsługuje rejestrację, logowanie społecznościowe i MFA dla pacjentów; AD obsługuje tożsamości pracownicze z grupami ról; OAuth 2.0 / OpenID Connect out-of-the-box |
+| Infrastruktura jako kod | **Terraform** | Deklaratywny opis infrastruktury; wersjonowanie w Git; obsługa środowisk dev / preprod / prod z jednego kodu źródłowego |
+| CI/CD | **GitHub Actions** | Automatyczne budowanie, testowanie i wdrażanie kontenerów; integracja z Azure Container Registry i AKS |
+| Monitorowanie i obserwowalność | **Azure Monitor** + **Application Insights** + **OpenTelemetry** | Zbieranie metryk, logów i śladów rozproszonych w jednym miejscu; integracja z alertami i dashboardami |
+
+---
+
+## 4. Wzorce i taktyki architektoniczne
+
+### 4.1 Bezpieczeństwo i zgodność
+
+**Uwierzytelnianie i autoryzacja**
+
+System stosuje dwuwarstwowy model tożsamości. Pacjenci uwierzytelniają się przez Azure AD B2C z obowiązkowym MFA opartym na TOTP lub SMS. Personel medyczny i administracyjny korzysta z Azure AD z MFA wymaganym dla wszystkich kont (wymaganie F6.2). Brama API (Azure API Management) waliduje każde żądanie przychodzące: sprawdza podpis tokenu JWT, czas jego ważności oraz obecność wymaganych claims zanim żądanie dotrze do mikroserwisu. Mikroserwisy nie wykonują własnej walidacji tokenów — ufają decyzji bramy.
+
+Autoryzacja wewnątrz usług realizowana jest przez kontrolę dostępu opartą na rolach (RBAC). Każdy mikroserwis sprawdza claim `roles` zawarty w tokenie i na jego podstawie decyduje, które zasoby są dostępne dla żądającego. Przykładowo, serwis EDM udostępnia pełny odczyt i zapis wyłącznie lekarzom (`role: physician`), odczyt własnych rekordów pacjentowi (`role: patient`, po weryfikacji `patient_id`) oraz odczyt audytu specjalistom ds. zgodności (`role: compliance`). Wymaganie F6.1 (dostosowanie dostępu do roli) jest realizowane tą taktyką.
+
+**Szyfrowanie danych**
+
+Dane w transporcie są szyfrowane przez TLS 1.3 na każdym połączeniu — od klienta przez bramę, między mikroserwisami wewnątrz klastra (mTLS zarządzany przez service mesh Istio), oraz do systemów zewnętrznych (NFZ, eWUŚ, Centrum e-Zdrowia). Dane w spoczynku są szyfrowane na poziomie platformy: PostgreSQL używa szyfrowania dysków zarządzanego przez Azure, Blob Storage stosuje szyfrowanie AES-256 po stronie serwera z kluczami przechowywanymi w Azure Key Vault. Klucze szyfrowania podlegają automatycznej rocznej rotacji (wymaganie NF1.2).
+
+**Logi audytu**
+
+Każda operacja na EDM (odczyt, zapis, modyfikacja, pobranie) rejestruje zdarzenie audytowe zawierające identyfikator użytkownika, rolę, typ operacji, identyfikator rekordu i znacznik czasu. Zdarzenia audytu są zapisywane do dedykowanej tabeli PostgreSQL z uprawnieniami tylko do zapisu (INSERT) dla mikroserwisów — żaden serwis nie może modyfikować ani usuwać wpisów audytu. Tabela audytu jest replikowana geograficznie razem z bazą transakcyjną. Wymaganie F3.4 oraz NF1.1 są realizowane tą taktyką.
+
+**Automatyczne wylogowanie i zarządzanie sesją**
+
+Tokeny dostępu mają krótki czas ważności (15 minut). Dłuższe sesje są utrzymywane przez tokeny odświeżania przechowywane w Redis z TTL ustawionym zgodnie z polityką bezczynności (wymaganie F6.3). Przy wykryciu bezczynności klient nie odnawia tokenu — serwer odrzuca wygasły token dostępu, zmuszając użytkownika do ponownego logowania.
+
+### 4.2 Wydajność
+
+**Równoważenie obciążenia**
+
+Ruch użytkowników jest kierowany przez Azure Front Door do regionu podstawowego. W obrębie regionu Application Gateway równoważy ruch między węzłami klastra AKS. Wewnątrz klastra Kubernetes rozdziela ruch między instancje mikroserwisów przez usługę ClusterIP z round-robin. Automatyczne skalowanie poziome (Horizontal Pod Autoscaler) zwiększa liczbę instancji serwisu na podstawie CPU, pamięci lub niestandardowych metryk (np. długości kolejki Service Bus), utrzymując czas odpowiedzi poniżej 1 sekundy w szczycie (wymaganie NF5.1).
+
+**Buforowanie**
+
+Redis przechowuje wyniki często odpytywanych, rzadko zmieniających się danych: harmonogramy dostępności lekarzy (TTL: 5 minut), dane sesji (TTL: czas bezczynności sesji), wyniki zapytań słownikowych (TTL: 1 godzina). Wzorzec cache-aside jest stosowany konsekwentnie: mikroserwis sprawdza Redis przed odpytaniem bazy; w przypadku trafienia zwraca wynik z cache; w przypadku chybienia odpytuje bazę, zapisuje wynik do Redis i zwraca klientowi. Dane EDM i wyniki badań nie są buforowane ze względu na wymogi spójności i audytu.
+
+**Przetwarzanie asynchroniczne**
+
+Operacje niewymagające natychmiastowej odpowiedzi są realizowane asynchronicznie przez Azure Service Bus. Przykłady: wysyłka powiadomień SMS (producentem jest serwis wizyt, konsumentem serwis powiadomień), przekazanie wyników laboratoryjnych do EDM (producent: adapter laboratoryjny, konsument: serwis EDM), generowanie raportów NFZ (zadanie planowane). Oddziela to czas odpowiedzi API od czasu wykonania operacji pobocznych, co jest kluczowe dla osiągnięcia NF5.1 (≤ 1 s dla podstawowych operacji).
+
+### 4.3 Interoperacyjność
+
+**HL7 FHIR R4**
+
+Serwis EDM udostępnia interfejs zgodny z HL7 FHIR R4 dla zewnętrznych systemów integrujących się z SOZ (wymaganie NF6.1). Zasoby FHIR (`Patient`, `Encounter`, `Observation`, `DiagnosticReport`, `MedicationRequest`, `ServiceRequest`) są mapowane na wewnętrzny model danych przez warstwę tłumaczącą (FHIR Mapper). Zewnętrzne systemy (np. systemy innych placówek medycznych) komunikują się przez dedykowany endpoint FHIR API zarządzany przez APIM z oddzielną polityką ograniczania żądań i uwierzytelnianiem.
+
+**DICOM i DICOMweb**
+
+Obrazy medyczne są przesyłane i pobierane przez protokół DICOMweb (STOW-RS dla przesyłania, WADO-RS dla pobierania), który transportuje dane DICOM przez HTTP. Adapter DICOMweb tłumaczy żądania HTTP na operacje na Azure Blob Storage, gdzie pliki DICOM są przechowywane w dedykowanym kontenerze. Przeglądarka DICOM (Cornerstone.js) komunikuje się bezpośrednio z adapterem przez WADO-RS (wymaganie NF6.2).
+
+**Integracje z systemami zewnętrznymi**
+
+Każda integracja zewnętrzna (Centrum e-Zdrowia, eWUŚ, NFZ) jest enkapsulowana w dedykowanym adapterze mikroserwisowym. Adapter tłumaczy wewnętrzny model danych SOZ na format oczekiwany przez zewnętrzny system i odwrotnie. Wzorzec Anti-Corruption Layer chroni model wewnętrzny przed zmianami w zewnętrznych API — zmiana formatu zewnętrznego wymaga modyfikacji wyłącznie adaptera, nie logiki domenowej. Wzajemne uwierzytelnianie mTLS jest obsługiwane przez adapter przy użyciu certyfikatów przechowywanych w Azure Key Vault.
+
+### 4.4 Odtwarzanie po awarii
+
+**Replikacja geograficzna**
+
+Baza PostgreSQL jest replikowana synchronicznie do regionu zapasowego (Europa Zachodnia) w trybie hot-standby. Azure Blob Storage używa replikacji RA-GRS (Read-Access Geo-Redundant Storage), która asynchronicznie kopiuje dane do regionu zapasowego z RPO rzędu kilku minut — znacznie poniżej wymagania RPO ≤ 1 godzina (NF4.3). Klaster AKS w regionie zapasowym działa w trybie uśpienia (minimalna liczba węzłów i instancji). Azure Front Door monitoruje dostępność regionu podstawowego przez health probe co 5 sekund i automatycznie przełącza ruch do regionu zapasowego, gdy primary przestaje odpowiadać — realizując wymaganie RTO ≤ 4 godziny (NF4.2).
+
+**Kopie zapasowe**
+
+PostgreSQL generuje automatyczne kopie zapasowe co godzinę (point-in-time restore przez 35 dni). Azure Blob Storage przechowuje wersje poprzednie obiektów przez 90 dni (blob versioning). Procedury odtwarzania są testowane kwartalnie przez symulację awarii regionu w środowisku preprodukcyjnym (wymaganie NF3.2).
+
+**Redundancja wewnątrzregionalna**
+
+Mikroserwisy są wdrażane z wymaganą minimalną liczbą 3 replik (po jednej na każdą strefę dostępności). PodAntiAffinity w Kubernetes zapobiega koncentracji replik jednej usługi na węzłach tej samej strefy. PostgreSQL i Redis używają konfiguracji multi-AZ z automatycznym przełączeniem na replikę przy awarii węzła pierwotnego (automatic failover).
+
+### 4.5 Monitorowanie
+
+**Zbieranie danych obserwowalności**
+
+Każdy mikroserwis instrumentowany jest przez OpenTelemetry SDK, które zbiera trzy rodzaje sygnałów: metryki (liczniki, histogramy czasów odpowiedzi, wskaźniki błędów), logi strukturalne (JSON do Azure Monitor Log Analytics), ślady rozproszone (trace ID propagowany przez cały łańcuch wywołań). Application Insights zbiera dane APM (Application Performance Monitoring) i koreluje zdarzenia z różnych mikroserwisów na podstawie wspólnego trace ID — pozwala to w ciągu sekund zidentyfikować, który mikroserwis jest odpowiedzialny za podwyższony czas odpowiedzi w scenariuszu wielousługowym.
+
+**Alerty i reakcja na incydenty**
+
+Azure Monitor definiuje alerty oparte na progu dla kluczowych wskaźników: dostępność endpointów (SLA ≥ 99,5% — NF4.1), czas odpowiedzi P99 (≤ 1 s — NF5.1), wskaźnik błędów HTTP 5xx (próg: 1%), długość kolejki Service Bus (sygnał przeciążenia konsumentów), zużycie pamięci i CPU węzłów klastra. Alerty wysokiego priorytetu wyzwalają powiadomienia do administratora IT przez e-mail, SMS oraz Microsoft Teams (wymaganie NF2.4). Niższe priorytety trafiają wyłącznie do dashboardu.
+
+**Centralne rejestrowanie**
+
+Wszystkie logi trafiają do Azure Monitor Log Analytics — jednego, scentralizowanego miejsca przechowywania i przeszukiwania logów z całego systemu. Logi są indeksowane i przeszukiwalne przez KQL (Kusto Query Language). Logi audytu EDM są przechowywane przez okres wynikający z przepisów o dokumentacji medycznej (20 lat) i są logicznie oddzielone od logów operacyjnych (wymaganie NF2.3).
+
+---
+
+## 5. Uzasadnienie architektury
+
+### 5.1 Zgodność z celami biznesowymi
+
+Zaprojektowana architektura adresuje bezpośrednio każdy z sześciu aktorów systemu i ich problemy zidentyfikowane w sekcji 1.1.
+
+Pacjent zyskuje dostęp do własnej dokumentacji medycznej, możliwość samodzielnego umawiania wizyt i teleporad oraz powiadomienia SMS — wszystko przez portal webowy i aplikację mobilną (wymagania F0.1, F1.1, F2.1, F3.3). Lekarz otrzymuje ujednoliconą historię leczenia przez EDM, dostęp do wyników badań obrazowych przez przeglądarkę DICOM, oraz narzędzia do wystawiania e-recept i e-skierowań zintegrowane z Centrum e-Zdrowia (F2.4, F2.5, F3.2). Laboratorium zyskuje zautomatyzowany kanał przekazywania wyników bezpośrednio do EDM przez adapter HL7 FHIR i DICOMweb (F4.1). Administrator placówki ma wgląd w harmonogram, generowanie raportów wizytowych i NFZ przez Power BI Embedded i Azure Synapse (F5.2–F5.5). Administrator IT dysponuje pełną obserwowalnością systemu przez OpenTelemetry, Application Insights i automatyczne alerty (NF2.1–NF2.4). Specjalista ds. zgodności ma dostęp do niemodyfikowalnych logów audytu EDM z pełną historią dostępów, co umożliwia wykazanie zgodności z RODO i przepisami o dokumentacji medycznej (F3.4, NF1.1–NF1.4).
+
+Strategicznym celem biznesowym jest integracja sieci 25 placówek w jeden spójny system. Architektura mikroserwisowa pozwala poszczególnym placówkom korzystać z tych samych usług backendowych, utrzymując jednocześnie separację danych na poziomie tenant_id w modelu wielodostępnym — bez konieczności wdrażania osobnych instancji systemu dla każdej przychodni.
+
+### 5.2 Balans między złożonością, elastycznością a kosztami
+
+**Złożoność** jest zarządzana przez świadome decyzje o wyborze zarządzanych usług chmurowych zamiast własnych rozwiązań. AKS zamiast samodzielnie zarządzanego Kubernetes, Azure Service Bus zamiast własnego Kafki, Azure Synapse zamiast własnego Hadoop — każda z tych decyzji przenosi odpowiedzialność za utrzymanie infrastruktury na Microsoft i redukuje obciążenie operacyjne zespołu. Złożonością pozostaje jednak sama architektura mikroserwisowa: wiele niezależnych usług wymaga dojrzałych praktyk CI/CD, service discovery i obserwowalności rozproszonej. Jest to świadomy kompromis — alternatywa w postaci monolitu byłaby prostsza operacyjnie, ale uniemożliwiałaby niezależne wdrażanie i skalowanie poszczególnych funkcjonalności.
+
+**Elastyczność** architektury przejawia się na kilku poziomach. Każdy mikroserwis jest wdrażany i skalowany niezależnie — wzrost ruchu w sekcji telemedycznej podczas sezonu grypowego nie wymaga skalowania całego systemu. Wzorzec Anti-Corruption Layer dla integracji zewnętrznych pozwala wymieniać adaptery bez ingerencji w logikę domenową. Warstwowe środowiska (dev / preprod / prod) i Terraform jako infrastruktura jako kod umożliwiają szybkie tworzenie środowisk testowych i kontrolowane wdrożenia.
+
+**Koszty** są optymalizowane przez kilka taktyk. Dane analityczne nie są replikowane do regionu zapasowego — ponieważ mogą być odtworzone z danych transakcyjnych, ich replikacja byłaby kosztem bez proporcjonalnej korzyści. Azure Blob Storage automatycznie przenosi starsze pliki DICOM i PDF do tańszego tieru Cool i Archive — szacuje się, że po 3 latach większość danych obrazowych będzie w tierze Archive, co redukuje koszt przechowywania o ponad 80% w stosunku do tieru Hot. Klaster w regionie zapasowym działa w trybie uśpienia, a nie w pełnej konfiguracji produkcyjnej — koszt zapewnienia RTO ≤ 4 godziny jest znacząco niższy niż utrzymanie pełnego duplikatu infrastruktury.
+
+### 5.3 Kluczowe ryzyka i strategie ich ograniczania
+
+| Ryzyko | Prawdopodobieństwo | Wpływ | Strategia ograniczania |
+|---|---|---|---|
+| **Naruszenie bezpieczeństwa danych medycznych** | Niskie | Krytyczny | Wielowarstwowa obrona: WAF (Front Door), DMZ z Application Gateway, mTLS wewnątrz klastra (Istio), szyfrowanie danych w spoczynku (AES-256), RBAC z minimalnym uprawnieniem, niemodyfikowalne logi audytu; regularne testy penetracyjne |
+| **Awaria regionu podstawowego** | Bardzo niskie | Wysoki | Region zapasowy w trybie standby z automatycznym przełączeniem przez Azure Front Door; replikacja bazy i Blob Storage; RTO ≤ 4 h i RPO ≤ 1 h zapewnione przez architekturę aktywne-pasywne |
+| **Niezgodność z wymogami regulacyjnymi (RODO, NFZ)** | Niskie | Wysoki | Dane przechowywane wyłącznie w regionach UE (Polska Środkowa jako primary, Europa Zachodnia jako DR); audyt dostępów do EDM; moduł raportowania NFZ oparty na certyfikowanych formatach komunikatów; regularne przeglądy zgodności przez specjalistę ds. zgodności |
+| **Opóźnienia lub niedostępność systemów zewnętrznych (eWUŚ, NFZ, Centrum e-Zdrowia)** | Średnie | Średni | Wzorzec Circuit Breaker w adapterach integracyjnych; lokalny fallback dla weryfikacji eWUŚ (rejestracja wizyty możliwa z oznaczeniem "weryfikacja odroczona"); kolejkowanie zleceń NFZ w Service Bus na czas niedostępności systemu zewnętrznego |
+| **Wzrost danych DICOM ponad zakładany wolumen** | Średnie | Średni | Automatyczna polityka lifecycle management w Blob Storage (przenoszenie do Cool/Archive); monitorowanie zużycia przestrzeni z alertami przy przekroczeniu 70% prognozy; architektura nie wymaga zmian — jedynie podwyższenie limitu pojemności usługi |
+| **Utrata kluczowych certyfikatów mTLS używanych przez integracje zewnętrzne** | Niskie | Wysoki | Certyfikaty przechowywane w Azure Key Vault z automatycznym przypomnieniem o wygaśnięciu 90 dni przed terminem; udokumentowana procedura odnowienia certyfikatu; środowisko preprodukcyjne służy do testowania odnowienia bez ryzyka dla produkcji |
+| **Dług techniczny wynikający z równoległego utrzymania wielu mikroserwisów** | Wysokie | Średni | Wspólna biblioteka cross-cutting concerns (.NET NuGet package) obejmująca logowanie, audyt, obsługę błędów i propagację trace ID; wzorzec Vertical Slice Architecture wewnątrz każdego serwisu; wymóg pokrycia testami jednostkowymi na poziomie ≥ 80% i testami integracyjnymi dla każdego kontraktu API |
