@@ -1,6 +1,6 @@
 <style>
   @page { margin: 12mm; }
-  table { page-break-inside: avoid; break-inside: avoid; }
+  /* table { page-break-inside: avoid; break-inside: avoid; } */
   pre, code { page-break-inside: avoid; break-inside: avoid; }
   blockquote { page-break-inside: avoid; break-inside: avoid; }
   h1, h2, h3, h4 { page-break-after: avoid; break-after: avoid; }
@@ -365,6 +365,8 @@ Najważniejsze założenia modelu danych:
 
 <img src="./diagrams/klasy-ais.drawio.png" style="max-width: 100%; max-height: 257mm; display: block; margin: 0 auto;" />
 
+<div style="page-break-after: always;" />
+
 ## 3. Wybór technologii
 
 ### 3.1 Frontend
@@ -386,6 +388,8 @@ Najważniejsze założenia modelu danych:
 | Usługa czatu telemedycznego        | **SignalR** (ASP.NET Core)    | Natywna integracja z ekosystemem .NET; umożliwia implementację czatu telemedycznego i komunikacji w czasie rzeczywistym                                                                                                                                      |
 | Przetwarzanie zleceń i powiadomień | **MassTransit**               | Abstrakcja nad Azure Service Bus ułatwiająca implementację i obsługę komunikacji asynchronicznej pomiędzy mikroserwisami                                                                                                                                     |
 
+<div style="page-break-after: always;" />
+
 ### 3.3 Integracja
 
 | Obszar                                | Technologia / Standard                   | Uzasadnienie                                                                                                             |
@@ -397,6 +401,8 @@ Najważniejsze założenia modelu danych:
 | Rozliczenia świadczeń                 | SOAP API **NFZ**                         | Przekazywanie raportów rozliczeniowych do NFZ; mTLS                                                                      |
 | Asynchroniczna komunikacja wewnętrzna | **Azure Service Bus** (kolejki i tematy) | Zarządzana usługa komunikacji asynchronicznej pomiędzy mikroserwisami zintegrowana z ekosystemem Azure                   |
 | Powiadomienia SMS                     | **Azure Communication Services**         | Zarządzana usługa chmurowa umożliwiająca wysyłanie powiadomień SMS; zintegrowana z ekosystemem Azure                     |
+
+<div style="page-break-after: always;" />
 
 ### 3.4 Bazy danych i przechowywanie danych
 
@@ -415,6 +421,8 @@ Najważniejsze założenia modelu danych:
 | Potok ETL            | **Synapse Pipelines**       | Orkiestracja transferu danych z PostgreSQL do Synapse; harmonogramowane i wyzwalane przepływy danych                                                                         |
 | Dashboardy i raporty | **Power BI Embedded**       | Natywna integracja z Azure Synapse; możliwość osadzenia raportów bezpośrednio w portalu administracyjnym bez logowania do zewnętrznego narzędzia; dostępne szablony raportów |
 
+<div style="page-break-after: always;" />
+
 ### 3.6 Infrastruktura i hosting
 
 | Komponent                             | Technologia                                                         | Uzasadnienie                                                                                                                                                                                                                   |
@@ -428,6 +436,8 @@ Najważniejsze założenia modelu danych:
 | Monitorowanie i obserwowalność        | **Azure Monitor** + **Application Insights** + **OpenTelemetry**    | Zbieranie metryk, logów i śladów rozproszonych w jednym miejscu; integracja z alertami i dashboardami                                                                                                                          |
 
 ---
+
+<div style="page-break-after: always;" />
 
 ## 4. Wzorce i taktyki architektoniczne
 
@@ -453,6 +463,8 @@ Każda operacja na EDM (odczyt, zapis, modyfikacja, pobranie) rejestruje zdarzen
 
 Tokeny dostępu mają krótki czas ważności (10 minut), co ogranicza skutki ich ewentualnego przejęcia. W trakcie aktywnej pracy użytkownika są one regularnie odnawiane przy użyciu tokenów odświeżania. Token dostępu przechowywany jest w pamięci aplikacji, natomiast token odświeżania w ciasteczku przeglądarki. Po wygaśnięciu lub unieważnieniu tokenu odświeżania wymagane jest ponowne uwierzytelnienie użytkownika. Wymaganie F6.3 jest realizowane przez tę taktykę.
 
+<div style="page-break-after: always;" />
+
 ### 4.2 Wydajność
 
 **Równoważenie obciążenia**
@@ -477,9 +489,15 @@ Serwis EDM udostępnia interfejs zgodny z HL7 FHIR R4 dla zewnętrznych systemó
 
 Obrazy medyczne są przesyłane i pobierane przez DICOMweb, który umożliwia obsługę badań DICOM przez HTTP. Pliki DICOM są przechowywane w Azure Blob Storage, a przeglądarka obrazów medycznych oparta na Cornerstone.js pobiera je za pośrednictwem interfejsu DICOMweb (wymaganie NF6.2).
 
+<div style="page-break-after: always;" />
+
 #### Integracje z systemami zewnętrznymi
 
 Każda integracja zewnętrzna (Centrum e-Zdrowia, eWUŚ, NFZ) jest realizowana przez dedykowany adapter mikroserwisowy. Adapter tłumaczy wewnętrzny model danych SOZ na format wymagany przez system zewnętrzny i odwrotnie, dzięki czemu zmiany w interfejsach zewnętrznych systemów nie wpływają bezpośrednio na logikę biznesową. Wzajemne uwierzytelnianie mTLS realizowane jest przy użyciu certyfikatów przechowywanych w Azure Key Vault.
+
+#### Odporność na niedostępność zewnętrzną
+
+Każdy adapter integracyjny stosuje wzorzec Circuit Breaker: po wykryciu określonej liczby kolejnych błędów połączenia z systemem zewnętrznym adapter tymczasowo blokuje próby wywołania i zwraca błąd natychmiast (stan otwarty), zamiast czekać na timeout. Po ustalonym czasie przechodzi w stan półotwarty i testuje połączenie — jeśli zakończone sukcesem, wraca do stanu zamkniętego. Pozwala to uniknąć kaskadowych opóźnień w systemie. Dla eWUŚ przewidziano lokalny fallback (rejestracja wizyty możliwa z oznaczeniem „weryfikacja odroczona"); dla NFZ zlecenia są kolejkowane w Service Bus na czas niedostępności systemu zewnętrznego. W przypadku integracji z Centrum e-Zdrowia związanych z wystawianiem e-recept i e-skierowań operacje nie są kolejkowane z myślą o późniejszym ponowieniu, ponieważ osoba wystawiająca receptę lub skierowanie powinna możliwie szybko otrzymać informację o niepowodzeniu operacji.
 
 ### 4.4 Odtwarzanie po awarii
 
@@ -507,6 +525,8 @@ Wszystkie logi są przechowywane w Azure Monitor Log Analytics, zapewniając jed
 
 ---
 
+<div style="page-break-after: always;" />
+
 ## 5. Uzasadnienie architektury
 
 ### 5.1 Zgodność z celami biznesowymi
@@ -524,6 +544,7 @@ Strategicznym celem biznesowym jest integracja sieci 25 placówek w jeden spójn
 **Elastyczność** architektury przejawia się na kilku poziomach. Każdy mikroserwis jest wdrażany i skalowany niezależnie - wzrost ruchu w sekcji telemedycznej podczas sezonu grypowego nie wymaga skalowania całego systemu. Zastosowanie dedykowanych adapterów dla integracji zewnętrznych ułatwia dostosowanie systemu do zmian w interfejsach NFZ, eWUŚ czy Centrum e-Zdrowia bez wpływu na pozostałe komponenty. Warstwowe środowiska (dev / preprod / prod) oraz Terraform jako infrastruktura jako kod wspierają bezpieczne wdrażanie zmian i utrzymanie spójnej konfiguracji środowisk.
 
 **Koszty** są optymalizowane przez kilka taktyk. Dane analityczne nie są replikowane do regionu zapasowego, ponieważ mogą zostać odtworzone na podstawie danych transakcyjnych, a ich replikacja generowałaby dodatkowe koszty bez istotnego wpływu na ciągłość działania systemu. Azure Blob Storage automatycznie przenosi starsze pliki DICOM i PDF do tańszych warstw Cool i Archive, co ogranicza koszty długoterminowego przechowywania danych. Klaster w regionie zapasowym działa w trybie uśpienia, a nie w pełnej konfiguracji produkcyjnej, dzięki czemu koszt zapewnienia RTO ≤ 4 godziny jest znacząco niższy niż utrzymanie pełnego duplikatu infrastruktury.
+
 
 ### 5.3 Kluczowe ryzyka i strategie ich ograniczania
 
